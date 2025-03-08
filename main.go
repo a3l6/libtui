@@ -1,5 +1,5 @@
 package libtui
 
-func test() string {
+func Test() string {
 	return "Hello World"
 }
