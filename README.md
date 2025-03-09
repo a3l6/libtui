@@ -1,1 +1,3 @@
 # Libtui
+## Design Philosophy
+
