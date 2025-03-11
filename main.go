@@ -49,27 +49,28 @@ func (btn *Button) RenderToArrRunes() ([]rune, error) {
 
 		var overflowError error
 
-		if len_val > int(btn.Width) {
-			btn.Value = btn.Value[:btn.Width]
-			len_val = int(btn.Width)
+		if len_val-1 > int(btn.Width)-2 {
+			btn.Value = btn.Value[:btn.Width-2]
+			len_val = int(btn.Width) - 2
 			overflowError = RecoverableError{Field: "button.Value overflowed btn.width."}
 		}
 
-		base := []rune("[" + strings.Repeat(" ", int(btn.Width)) + "]")
-		offset := 1
-
+		base := []rune("[" + strings.Repeat(" ", int(btn.Width-2)) + "]")
+		var offset int
 		switch btn.Align {
 		case AlignCenter:
-			offset = (int(btn.Width)+2)/len_val - (len_val / 2)
+			offset = (int(btn.Width) - len_val) / 2
 			if offset+len_val >= int(btn.Width) {
 				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with centre alignment."}
 			}
 		case AlignLeft:
+
+			offset = 1
 			if len_val >= int(btn.Width) {
 				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with left alignment"}
 			}
 		case AlignRight:
-			offset = int(btn.Width) - len_val + 1
+			offset = int(btn.Width) - len_val - 1
 			if offset+len_val >= int(btn.Width) {
 				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with right alignment."}
 			}
