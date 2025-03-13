@@ -7,13 +7,13 @@ import (
 )
 
 type FocusableObject interface {
-	GetFocus()
-	focusOn()
-	focusOff()
+	GetFocus() bool
+	FocusOn()
+	FocusOff()
 }
 
 type FocusNode struct {
-	object FocusableObject
+	Object FocusableObject
 	Next   *FocusNode
 	Prev   *FocusNode
 }
@@ -26,6 +26,26 @@ type Focus struct {
 	Head *FocusNode
 	Tail *FocusNode
 	Curr *FocusNode
+}
+
+// Inserts node at head of focus list.
+// Errors if node is nil
+func (foc *Focus) InsertAtBeginning(node *FocusNode) error {
+	if node == nil {
+		return errors.New("node cannot be nil")
+	}
+
+	node.Next = foc.Head
+	if foc.Head != nil {
+		foc.Head.Prev = node
+	}
+	foc.Head = node
+	if foc.size == 0 {
+		foc.Curr = foc.Head
+		foc.Curr.Object.FocusOn()
+	}
+	foc.size++
+	return nil
 }
 
 // Fuction takes target and node of type *FocusNode.
@@ -56,6 +76,20 @@ func (foc *Focus) InsertAfterNode(target *FocusNode, node *FocusNode) error {
 	return nil
 }
 
+func (foc *Focus) GetAtPosition(index int) (*FocusNode, error) {
+	if index > foc.size {
+		return nil, errors.New("Index %d out of range with size %d")
+	}
+
+	current := foc.Head
+	i := 0
+	for i != index {
+		current = current.Next
+		i++
+	}
+	return current, nil
+}
+
 func (foc *Focus) GetSize() int {
 	// Not sure if the size will be useful
 	// But I want it to only be mutated by the list
@@ -66,9 +100,9 @@ func (foc *Focus) GetSize() int {
 // If the focus is at the tail then nothing happens.
 func (foc *Focus) Next() {
 	if foc.Curr.Next != nil {
-		foc.Curr.object.focusOff()
+		foc.Curr.Object.FocusOff()
+		foc.Curr.Next.Object.FocusOn()
 		foc.Curr = foc.Curr.Next
-		foc.Curr.object.focusOn()
 	}
 }
 
@@ -76,9 +110,9 @@ func (foc *Focus) Next() {
 // If the focus is at the head then nothing happens.
 func (foc *Focus) Prev() {
 	if foc.Curr.Prev != nil {
-		foc.Curr.object.focusOff()
+		foc.Curr.Object.FocusOff()
+		foc.Curr.Prev.Object.FocusOn()
 		foc.Curr = foc.Curr.Prev
-		foc.Curr.object.focusOn()
 	}
 }
 
@@ -117,18 +151,25 @@ const (
 )
 
 type Button struct {
-	highlighted  bool
-	Width        uint8
-	Height       uint8
-	Align        Alignment
-	Value        string
-	Callback     func()
-	RenderTarget RenderTarget // Not implemented yet
-	focus        bool
+	highlighted bool
+	Width       uint8
+	Height      uint8
+	Align       Alignment
+	Value       string
+	Callback    func()
+	focus       bool
 }
 
-func (btn *Button) render() {
+func (btn *Button) FocusOn() {
+	btn.highlighted = true
+}
 
+func (btn *Button) FocusOff() {
+	btn.highlighted = false
+}
+
+func (btn *Button) GetFocus() bool {
+	return btn.highlighted
 }
 
 // Renders out button as array of strings. Returns errors, some are recoverable and valid outputs are given.
@@ -144,7 +185,13 @@ func (btn *Button) RenderToArrRunes() ([]rune, error) {
 			overflowError = RecoverableError{Field: "button.Value overflowed btn.width."}
 		}
 
-		base := []rune("[" + strings.Repeat(" ", int(btn.Width-2)) + "]")
+		var base []rune
+		if btn.highlighted {
+			base = []rune("[\033[7m" + strings.Repeat(" ", int(btn.Width-2)) + "\033[0m]")
+		} else {
+			base = []rune("[" + strings.Repeat(" ", int(btn.Width-2)) + "]")
+		}
+
 		var offset int
 		switch btn.Align {
 		case AlignCenter:
@@ -167,7 +214,12 @@ func (btn *Button) RenderToArrRunes() ([]rune, error) {
 			return []rune{}, errors.New("alignment not supported, please choose between AlignLeft, AlignCenter, AlignRight")
 		}
 
-		copy(base[offset:], []rune(btn.Value))
+		if btn.highlighted {
+			// 4 for the initial \033[7m
+			copy(base[offset+4:], []rune(btn.Value))
+		} else {
+			copy(base[offset:], []rune(btn.Value))
+		}
 		return base, overflowError
 
 	} else {
