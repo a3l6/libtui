@@ -55,3 +55,26 @@ func Test_ButtonRenderArrRunesErrors(t *testing.T) {
 		})
 	}
 }
+
+func Test_SplitIntoChunks(t *testing.T) {
+	var tests = []struct {
+		name  string
+		input string
+		size  int
+		want  []string
+	}{
+		{
+			"Testing General Split",
+			"Lorem ipsum dolor sit amet. Ad beatae quibusdam in voluptas sint aut harum voluptas ut fugiat voluptatem sed consequuntur quis. Sed explicabo esse et iure debitis et eveniet architecto aut voluptas dolores qui eaque assumenda non incidunt assumenda id voluptate ullam. ",
+			10,
+			[]string{"Lorem ipsum dolor sit amet. Ad beatae quibusdam", "in voluptas sint aut harum voluptas ut fugiat", "voluptatem sed consequuntur quis. Sed explicabo", "esse et iure debitis et eveniet architecto aut", "voluptas dolores qui eaque assumenda non incidunt", "assumenda id voluptate ullam."},
+		},
+	}
+	for _, tt := range tests {
+		t.Parallel()
+		got := SplitIntoChunks(tt.input, tt.size)
+		if !reflect.DeepEqual(tt.want, got) {
+			t.Errorf("SplitIntoChunks() = %v, want match for %v", got, tt.want)
+		}
+	}
+}

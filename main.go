@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+func SplitIntoChunks(s string, size int) []string {
+	var result []string
+	for i := 0; i < len(s); i += size {
+		end := min(i+size, len(s))
+		result = append(result, s[i:end])
+	}
+	return result
+}
+
 type RecoverableError struct {
 	Field string
 }
@@ -25,18 +34,50 @@ const (
 type RenderTarget uint8
 
 const (
-	ArrRunes RenderTarget = iota
-	ArrString
+	ArrRunes  RenderTarget = iota
+	ArrString              // Currently only runes is supported
 )
 
-type Button struct {
+type Overflow uint8
+
+const (
+	Visible Overflow = iota
+	Hidden
+	Scroll
+)
+
+type Text struct {
+	Width       uint16
+	Height      uint16
+	Align       Alignment
+	Value       string
+	YOverflow   Overflow
 	highlighted bool
+}
+
+func (text *Text) FocusOn() {
+	text.highlighted = true
+}
+
+func (text *Text) FocusOff() {
+	text.highlighted = false
+}
+
+func (text *Text) GetFocus() bool {
+	return text.highlighted
+}
+
+func (text *Text) RenderToArrRunes() ([]rune, error) {
+	return []rune{}, nil
+}
+
+type Button struct {
 	Width       uint8
 	Height      uint8
 	Align       Alignment
 	Value       string
 	Callback    func()
-	focus       bool
+	highlighted bool
 }
 
 func (btn *Button) FocusOn() {
