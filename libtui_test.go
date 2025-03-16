@@ -65,16 +65,24 @@ func Test_SplitIntoChunks(t *testing.T) {
 	}{
 		{
 			"Testing General Split",
-			"Lorem ipsum dolor sit amet. Ad beatae quibusdam in voluptas sint aut harum voluptas ut fugiat voluptatem sed consequuntur quis. Sed explicabo esse et iure debitis et eveniet architecto aut voluptas dolores qui eaque assumenda non incidunt assumenda id voluptate ullam. ",
-			10,
-			[]string{"Lorem ipsum dolor sit amet. Ad beatae quibusdam", "in voluptas sint aut harum voluptas ut fugiat", "voluptatem sed consequuntur quis. Sed explicabo", "esse et iure debitis et eveniet architecto aut", "voluptas dolores qui eaque assumenda non incidunt", "assumenda id voluptate ullam."},
+			"Lorem ipsum dolor sit amet. Ad beatae quibusdam in voluptas sint aut harum voluptas ut fugiat voluptatem sed consequuntur quis. Sed explicabo esse et iure debitis et eveniet architecto aut voluptas dolores qui eaque assumenda non incidunt assumenda id voluptate ullam.",
+			50,
+			[]string{"Lorem ipsum dolor sit amet. Ad beatae quibusdam in", " voluptas sint aut harum voluptas ut fugiat volupt", "atem sed consequuntur quis. Sed explicabo esse et ", "iure debitis et eveniet architecto aut voluptas do", "lores qui eaque assumenda non incidunt assumenda i", "d voluptate ullam."},
+		},
+		{
+			"Base Case, no splitting needed",
+			"Hello World",
+			11,
+			[]string{"Hello World"},
 		},
 	}
 	for _, tt := range tests {
-		t.Parallel()
-		got := SplitIntoChunks(tt.input, tt.size)
-		if !reflect.DeepEqual(tt.want, got) {
-			t.Errorf("SplitIntoChunks() = %v, want match for %v", got, tt.want)
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := SplitIntoChunks(tt.input, tt.size)
+			if !reflect.DeepEqual(tt.want, got) {
+				t.Errorf("SplitIntoChunks() = \r\n%#v, want match for \r\n%#v", got, tt.want)
+			}
+		})
 	}
 }
