@@ -68,6 +68,25 @@ func (text *Text) GetFocus() bool {
 }
 
 func (text *Text) RenderToArrRunes() ([]rune, error) {
+	lines := []rune(SplitIntoChunks(text.Value, int(text.Width)))
+	for idx := range lines {
+		lines[idx] = []rune(strings.Repeat(" ", int(text.Width-2)))
+
+	}
+
+	switch text.Align {
+	case AlignCenter:
+		for idx, val := range lines {
+			offset = (int(btn.Width) - len(val)) / 2
+			if offset+len_val >= int(btn.Width) {
+				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with centre alignment."}
+			}
+		}
+	case AlignLeft:
+	case AlignRight:
+	default:
+		return []rune{}, fmt.Errorf("Alignment not supported. %w", errors.ErrUnsupported)
+	}
 	return []rune{}, nil
 }
 
