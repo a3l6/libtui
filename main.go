@@ -15,6 +15,15 @@ func SplitIntoChunks(s string, size int) []string {
 	return result
 }
 
+func SplitArrRunesIntoChunks(s []rune, size int) [][]rune {
+	var result [][]rune
+	for i := 0; i < len(s); i += size {
+		end := min(i+size, len(s))
+		result = append(result, s[i:end])
+	}
+	return result
+}
+
 type RecoverableError struct {
 	Field string
 }
@@ -67,27 +76,41 @@ func (text *Text) GetFocus() bool {
 	return text.highlighted
 }
 
-func (text *Text) RenderToArrRunes() ([]rune, error) {
-	lines := []rune(SplitIntoChunks(text.Value, int(text.Width)))
-	for idx := range lines {
-		lines[idx] = []rune(strings.Repeat(" ", int(text.Width-2)))
-
+func joinArrayArrayRunes(elems [][]rune, sep []rune) []rune {
+	var result []rune
+	for _, val := range elems {
+		result = append(result, val...)
+		result = append(result, sep...)
 	}
+	return result
+}
+
+func (text *Text) RenderToArrRunes() ([]rune, error) {
+	lines := SplitArrRunesIntoChunks([]rune(text.Value), int(text.Width))
+	var lines2 [][]rune
 
 	switch text.Align {
 	case AlignCenter:
-		for idx, val := range lines {
-			offset = (int(btn.Width) - len(val)) / 2
-			if offset+len_val >= int(btn.Width) {
-				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with centre alignment."}
-			}
+		for _, val := range lines {
+			blank := []rune(strings.Repeat(" ", int(text.Width)))
+			offset := (int(text.Width) - len(val)) / 2
+			copy(blank[offset:], val)
+			lines2 = append(lines2, blank)
 		}
 	case AlignLeft:
 	case AlignRight:
 	default:
-		return []rune{}, fmt.Errorf("Alignment not supported. %w", errors.ErrUnsupported)
+		return []rune{}, fmt.Errorf("Invalid alignment: %w", errors.ErrUnsupported)
 	}
-	return []rune{}, nil
+
+	var result []rune
+	for _, val := range lines {
+		sep := []rune(fmt.Sprintf("\033[%dD\033[1B", len(val)))
+		result = append(result, val...)
+		result = append(result, sep...)
+	}
+	result = append(result, []rune("\n")...)
+	return result, nil
 }
 
 type Button struct {
@@ -150,7 +173,7 @@ func (btn *Button) RenderToArrRunes() ([]rune, error) {
 				overflowError = RecoverableError{Field: "button.Value overflowed btn.width with right alignment."}
 			}
 		default:
-			return []rune{}, errors.New("alignment not supported, please choose between AlignLeft, AlignCenter, AlignRight")
+			return []rune{}, fmt.Errorf("alignment not supported, please choose between AlignLeft, AlignCenter, AlignRight: %w", errors.ErrUnsupported)
 		}
 
 		if btn.highlighted {

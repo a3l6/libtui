@@ -86,3 +86,29 @@ func Test_SplitIntoChunks(t *testing.T) {
 		})
 	}
 }
+
+func Test_SplitArrRunesIntoChunks(t *testing.T) {
+	var tests = []struct {
+		name  string
+		input []rune
+		size  int
+		want  [][]rune
+	}{
+		{
+			"Testing Arr Runes Split",
+			[]rune("Hello World"),
+			10,
+			[][]rune{{'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l'}, {'d'}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := SplitArrRunesIntoChunks(tt.input, tt.size)
+			if !reflect.DeepEqual(tt.want, got) {
+				t.Errorf("SplitArrRunesIntoChunks() = \r\n%#v, want match for \r\n%#v", got, tt.want)
+			}
+		})
+	}
+}
