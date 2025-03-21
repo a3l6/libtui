@@ -131,6 +131,7 @@ type Button struct {
 	Align       Alignment
 	Value       string
 	Callback    func()
+	Key         rune // No Internal Use
 	highlighted bool
 }
 
