@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+type Vector2 struct {
+	x int
+	y int
+}
+
 func SplitIntoChunks(s string, size int) []string {
 	var result []string
 	for i := 0; i < len(s); i += size {
@@ -58,6 +63,7 @@ const (
 type Text struct {
 	Width       uint16
 	Height      uint16
+	Position    Vector2
 	Align       Alignment
 	Value       string
 	YOverflow   Overflow
@@ -128,6 +134,7 @@ func (text *Text) RenderToArrRunes() ([]rune, error) {
 type Button struct {
 	Width       uint8
 	Height      uint8
+	Position    Vector2
 	Align       Alignment
 	Value       string
 	Callback    func()
