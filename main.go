@@ -7,8 +7,8 @@ import (
 )
 
 type Vector2 struct {
-	x int
-	y int
+	X int
+	Y int
 }
 
 func SplitIntoChunks(s string, size int) []string {
