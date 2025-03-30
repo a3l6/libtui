@@ -3,6 +3,7 @@ package libtui
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -27,7 +28,7 @@ func (modal *Modal) RenderToArrRunes() ([]rune, error) {
 	copy(base[modal.Width*(modal.Height-1):], bottom_box[:])
 
 	if modal.Height == 2 {
-		base, err := insertEveryN(base, []rune(fmt.Sprintf("\033[1B\033[%dD", modal.Width)), int(modal.Width))
+		base, err := insertEveryN(base, []rune(fmt.Sprintf("\033[%dB", modal.Width)), int(modal.Width))
 		if err != nil {
 			return []rune{}, errors.Join(errors.New("Could not insert ANSI codes into render. Encountered error: "), err)
 		}

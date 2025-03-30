@@ -1,5 +1,7 @@
 package libtui
 
+import "errors"
+
 type Vector2 struct {
 	X int
 	Y int
@@ -32,6 +34,38 @@ func joinArrayArrayRunes(elems [][]rune, sep []rune) []rune {
 	return result
 }
 
+func insertEveryN(source, insert []rune, n int) ([]rune, error) {
+	if n <= 0 {
+		errors.New("N must be greater than zero")
+	}
+
+	insertions := (len(source) - 1) / n
+	if len(source)%n == 0 {
+		insertions++
+	}
+
+	resultLen := len(source) + insertions*len(insert)
+	result := make([]rune, resultLen)
+
+	srcIdx, resIdx := 0, 0
+	for i := 0; srcIdx < len(source); i++ {
+		chunkEnd := srcIdx + n
+		if chunkEnd > len(source) {
+			chunkEnd = len(source)
+		}
+		copy(result[resIdx:], source[srcIdx:chunkEnd])
+		resIdx += chunkEnd - srcIdx
+		srcIdx = chunkEnd
+
+		if srcIdx < len(source) {
+			copy(result[resIdx:], insert)
+			resIdx += len(insert)
+		}
+	}
+
+	return result, nil
+}
+
 type RecoverableError struct {
 	Field string
 }
@@ -62,3 +96,7 @@ const (
 	Hidden
 	Scroll
 )
+
+type libtuiObject interface {
+	RenderToArrRunes() ([]rune, error)
+}
