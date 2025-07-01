@@ -34,36 +34,16 @@ func joinArrayArrayRunes(elems [][]rune, sep []rune) []rune {
 	return result
 }
 
-func insertEveryN(source, insert []rune, n int) ([]rune, error) {
-	if n <= 0 {
-		errors.New("N must be greater than zero")
+// This function duplicates the given 1D input slice into a 2D output with contains n number of times.
+// NOTE: the output of this function should not be mutated. If one thing is mutated the mutation propogates across entire array.
+// NOTE: This occurs due to the function copying the slice header not the underlying array.
+// I will not change this behaviour. This works for my use case.
+func DuplicateRuneSlice(input []rune, n int) [][]rune {
+	result := make([][]rune, n)
+	for i := 0; i < n; i++ {
+		result[i] = input // share the same slice
 	}
-
-	insertions := (len(source) - 1) / n
-	if len(source)%n == 0 {
-		insertions++
-	}
-
-	resultLen := len(source) + insertions*len(insert)
-	result := make([]rune, resultLen)
-
-	srcIdx, resIdx := 0, 0
-	for i := 0; srcIdx < len(source); i++ {
-		chunkEnd := srcIdx + n
-		if chunkEnd > len(source) {
-			chunkEnd = len(source)
-		}
-		copy(result[resIdx:], source[srcIdx:chunkEnd])
-		resIdx += chunkEnd - srcIdx
-		srcIdx = chunkEnd
-
-		if srcIdx < len(source) {
-			copy(result[resIdx:], insert)
-			resIdx += len(insert)
-		}
-	}
-
-	return result, nil
+	return result
 }
 
 type RecoverableError struct {
@@ -97,6 +77,6 @@ const (
 	Scroll
 )
 
-type libtuiObject interface {
+type LibtuiObject interface {
 	RenderToArrRunes() ([]rune, error)
 }
