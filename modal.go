@@ -52,7 +52,10 @@ func (modal *Modal) RenderToArrRunes() ([][]rune, error) {
 		base[i+modal.Width-1] = '│'
 	}
 
-	output := make([][]rune, 0)
+	var output [][]rune
+
 	base_output := DuplicateRuneSlice(base, modal.Width)
+	output = append(output, base_output...)
+
 	return base, nil
 }
