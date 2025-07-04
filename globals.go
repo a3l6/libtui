@@ -1,7 +1,5 @@
 package libtui
 
-import "errors"
-
 type Vector2 struct {
 	X int
 	Y int
@@ -40,8 +38,8 @@ func joinArrayArrayRunes(elems [][]rune, sep []rune) []rune {
 // I will not change this behaviour. This works for my use case.
 func DuplicateRuneSlice(input []rune, n int) [][]rune {
 	result := make([][]rune, n)
-	for i := 0; i < n; i++ {
-		result[i] = input // share the same slice
+	for i := range n {
+		result[i] = input
 	}
 	return result
 }

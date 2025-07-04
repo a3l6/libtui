@@ -36,24 +36,22 @@ func (modal *Modal) RenderToArrRunes() ([][]rune, error) {
 		return [][]rune{}, errors.New("Width must be at least 2 to draw the outline of the modal")
 	}
 
-	base := []rune(strings.Repeat(" ", modal.Width))
+	if modal.Height < 2 {
+		return [][]rune{}, errors.New("Height must be at least 2 to draw the outline of the modal")
+	}
+
+	base := []rune("│" + strings.Repeat(" ", modal.Width-2) + "│")
 
 	top_box := []rune("┌" + strings.Repeat("─", modal.Width-2) + "┐")
 	bottom_box := []rune("└" + strings.Repeat("─", modal.Width-2) + "┘")
 
 	if modal.Height == 2 {
-		output := append(top_box, bottom_box...)
-		return [][]rune{output}, nil
-	}
-
-	for i := modal.Width; i < len(base)-modal.Width; i += modal.Width {
-		base[i] = '│'
-		base[i+modal.Width-1] = '│'
+		return [][]rune{top_box, bottom_box}, nil
 	}
 
 	var output [][]rune
 
-	base_output := DuplicateRuneSlice(base, modal.Width)
+	base_output := DuplicateRuneSlice(base, modal.Height-2)
 	output = append(output, top_box)
 	output = append(output, base_output...)
 	output = append(output, bottom_box)
