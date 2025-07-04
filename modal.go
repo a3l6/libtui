@@ -2,7 +2,6 @@ package libtui
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -55,7 +54,9 @@ func (modal *Modal) RenderToArrRunes() ([][]rune, error) {
 	var output [][]rune
 
 	base_output := DuplicateRuneSlice(base, modal.Width)
+	output = append(output, top_box)
 	output = append(output, base_output...)
+	output = append(output, bottom_box)
 
-	return base, nil
+	return output, nil
 }
